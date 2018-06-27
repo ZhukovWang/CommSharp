@@ -14,7 +14,7 @@ namespace Comm
             RemotePort = remotrPort;
             LocalIp = localIp;
             LocalPort = localPort;
-            _clinetSocket = new Socket(AddressFamily.InterNetwork, SocketType.Seqpacket, ProtocolType.Tcp);
+            _clinetSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         }
 
         private string _remoteIp;
@@ -140,10 +140,11 @@ namespace Comm
 
         public int Receive(ref List<Byte> data)
         {
-            List<ArraySegment<Byte>> recvData = new List<ArraySegment<byte>>();
+            byte[] recvData = new byte[2048];
+            int recvLength = 0;
             try
             {
-                _clinetSocket.Receive(recvData);
+                recvLength = _clinetSocket.Receive(recvData);
             }
             catch (SocketException)
             {
@@ -153,17 +154,15 @@ namespace Comm
             {
                 return 2;
             }
-            catch
-            {
-                return 3;
-            }
 
             try
             {
-                byte[] dataArray = recvData[0].Array;
-                if (dataArray != null)
+                if (recvLength > 0)
                 {
-                    data = dataArray.ToList();
+                    for (int i = 0; i < recvLength; i++)
+                    {
+                        data.Add(recvData[i]);
+                    }
                 }
             }
             catch

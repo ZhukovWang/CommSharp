@@ -73,7 +73,7 @@ namespace Comm
                     {
                         for (int i = 0; i < number; i++)
                         {
-                            byte[] dataTwoBytes = new[] {receiveData[9 + 2 * i], receiveData[9 + 2 * i + 1]};
+                            byte[] dataTwoBytes = new[] {receiveData[9 + 2 * i + 1], receiveData[9 + 2 * i]};
                             data.Add(BitConverter.ToUInt16(dataTwoBytes,0));
                         }
                     }
@@ -127,12 +127,14 @@ namespace Comm
             byte[] numberBytes = BitConverter.GetBytes((ushort)data.Count);
             sendData.Add(numberBytes[1]);
             sendData.Add(numberBytes[0]);
+            sendData.Add((byte) (data.Count * 2));
 
-            foreach (var i in data)
+
+            for (int i = 0; i < data.Count; i++)
             {
-                byte[] dataBytes = BitConverter.GetBytes(i);
-                sendData.Add(numberBytes[1]);
-                sendData.Add(numberBytes[0]);
+                byte[] dataBytes = BitConverter.GetBytes(data[i]);
+                sendData.Add(dataBytes[1]);
+                sendData.Add(dataBytes[0]);
             }
 
             ushort length = (ushort)(sendData.Count - 6);
@@ -146,9 +148,9 @@ namespace Comm
             {
                 if (receiveData[7] == 0x10)
                 {
-                    byte[] dataTwoBytes = new[] { receiveData[10], receiveData[11] };
+                    byte[] dataTwoBytes = new[] { receiveData[11], receiveData[10] };
 
-                    if (BitConverter.ToUInt16(dataTwoBytes,0) / 2 == data.Count)
+                    if (BitConverter.ToUInt16(dataTwoBytes,0) == data.Count)
                     {
                         ;
                     }

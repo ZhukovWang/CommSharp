@@ -1,15 +1,13 @@
-﻿using System;
+﻿using Comm;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Comm;
 
 namespace ConsoleComm
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
             string localIp = "192.168.1.222";
             int localPort = 0;
@@ -19,11 +17,11 @@ namespace ConsoleComm
             int error = 0;
 
             int length = 10;
-            List<ushort> TestData = new List<ushort>();
+            List<ushort> testData = new List<ushort>();
 
             for (int i = 0; i < length; i++)
             {
-                TestData.Add((ushort)(0xFFF0 | i));
+                testData.Add((ushort)(0xFFF0 | i));
             }
 
             Comm.ModbusTcpProtocol modbus = new ModbusTcpProtocol(remoteIp, remotePort, localIp, localPort);
@@ -33,35 +31,32 @@ namespace ConsoleComm
             if (error == 0)
             {
                 Console.WriteLine("Open success!");
-                error = TestWrite(ref modbus, ref length, ref TestData);
+                error = TestWrite(ref modbus, ref testData);
                 if (error == 0)
                 {
-                    error = TestRead(ref modbus, ref length, ref TestData);
-                    if (error == 0)
-                    {
-                        Console.WriteLine("Closing...");
-                        error = modbus.ModbusTcpClose();
-                        if (error == 0)
-                        {
-                            Console.WriteLine("Close success!");
-                        }
-                        else
-                        {
-                            Console.WriteLine("Close fail. Error code is " + error.ToString() + ".");
-                        }
-                    }
+                    error = TestRead(ref modbus, ref length, ref testData);
                 }
-                
-
+                Console.WriteLine("Closing...");
+                error = modbus.ModbusTcpClose();
+                if (error == 0)
+                {
+                    Console.WriteLine("Close success!");
+                }
+                else
+                {
+                    Console.WriteLine("Close fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
+                }
 
             }
             else
             {
-                Console.WriteLine("Open fail. Error code is " + error.ToString() + ".");
+                Console.WriteLine("Open fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
             }
+
+            Console.Read();
         }
 
-        private static int TestWrite(ref ModbusTcpProtocol modbus,ref int length, ref List<ushort> data)
+        private static int TestWrite(ref ModbusTcpProtocol modbus, ref List<ushort> data)
         {
             Console.WriteLine("Test write...");
             Console.Write("Write data is:");
@@ -83,7 +78,6 @@ namespace ConsoleComm
             }
 
             return error;
-
         }
 
         private static int TestRead(ref ModbusTcpProtocol modbus, ref int length, ref List<ushort> data)
@@ -112,7 +106,7 @@ namespace ConsoleComm
             }
             else
             {
-                Console.WriteLine("Read fail. Error code is " + error.ToString() + ".");
+                Console.WriteLine("Read fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
             }
 
             return error;
