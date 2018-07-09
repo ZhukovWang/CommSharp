@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 
@@ -51,150 +50,43 @@ namespace Comm
 
         private Socket _clinetSocket;
 
-        public int Init()
+        public void Init()
         {
-            try
-            {
-                _clinetSocket.Bind(new IPEndPoint(IPAddress.Parse(_localIp), _localPort));
-            }
-            catch (FormatException)
-            {
-                return 1;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return 2;
-            }
-            catch (SocketException)
-            {
-                return 3;
-            }
-            catch (ObjectDisposedException)
-            {
-                return 4;
-            }
-            catch
-            {
-                return 5;
-            }
-
-            return 0;
+            _clinetSocket.Bind(new IPEndPoint(IPAddress.Parse(_localIp), _localPort));
         }
 
-        public int Open()
+        public void Open()
         {
-            try
-            {
-                _clinetSocket.Connect(IPAddress.Parse(_remoteIp), _remotePort);
-            }
-            catch (FormatException)
-            {
-                return 1;
-            }
-            catch (ArgumentOutOfRangeException)
-            {
-                return 2;
-            }
-            catch (SocketException)
-            {
-                return 3;
-            }
-            catch (ObjectDisposedException)
-            {
-                return 4;
-            }
-            catch (NotSupportedException)
-            {
-                return 5;
-            }
-            catch
-            {
-                return 6;
-            }
-
-            return 0;
+            _clinetSocket.Connect(IPAddress.Parse(_remoteIp), _remotePort);
         }
 
-        public int Send(ref List<Byte> data)
+        public void Send(ref List<Byte> data)
         {
             byte[] sendData = data.ToArray();
-            try
-            {
-                _clinetSocket.Send(sendData);
-            }
-            catch (SocketException)
-            {
-                return 1;
-            }
-            catch (ObjectDisposedException)
-            {
-                return 2;
-            }
-            catch
-            {
-                return 3;
-            }
-
-            return 0;
+            _clinetSocket.Send(sendData);
         }
 
-        public int Receive(ref List<Byte> data)
+        public int Receive(out List<Byte> data)
         {
+            data = new List<byte>();
             byte[] recvData = new byte[2048];
             int recvLength = 0;
-            try
+            recvLength = _clinetSocket.Receive(recvData);
+            if (recvLength > 0)
             {
-                recvLength = _clinetSocket.Receive(recvData);
-            }
-            catch (SocketException)
-            {
-                return 1;
-            }
-            catch (ObjectDisposedException)
-            {
-                return 2;
-            }
-
-            try
-            {
-                if (recvLength > 0)
+                for (int i = 0; i < recvLength; i++)
                 {
-                    for (int i = 0; i < recvLength; i++)
-                    {
-                        data.Add(recvData[i]);
-                    }
+                    data.Add(recvData[i]);
                 }
             }
-            catch
-            {
-                return 5;
-            }
-
-            return 0;
+            return recvLength;
         }
 
-        public int Close()
+        public void Close()
         {
-            try
-            {
-                _clinetSocket.Shutdown(SocketShutdown.Both);
-                _clinetSocket.Dispose();
-                _clinetSocket.Close();
-            }
-            catch (SocketException)
-            {
-                return 1;
-            }
-            catch (ObjectDisposedException)
-            {
-                return 2;
-            }
-            catch
-            {
-                return 3;
-            }
-
-            return 0;
+            _clinetSocket.Shutdown(SocketShutdown.Both);
+            _clinetSocket.Dispose();
+            _clinetSocket.Close();
         }
     }
 }

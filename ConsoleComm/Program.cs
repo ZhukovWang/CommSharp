@@ -14,8 +14,6 @@ namespace ConsoleComm
             string remoteIp = "192.168.1.2";
             int remotePort = 502;
 
-            int error = 0;
-
             int length = 10;
             List<ushort> testData = new List<ushort>();
 
@@ -27,36 +25,38 @@ namespace ConsoleComm
             Comm.ModbusTcpProtocol modbus = new ModbusTcpProtocol(remoteIp, remotePort, localIp, localPort);
 
             Console.WriteLine("Opening...");
-            error = modbus.ModbusTcpOpen();
-            if (error == 0)
+            try
             {
-                Console.WriteLine("Open success!");
-                error = TestWrite(ref modbus, ref testData);
-                if (error == 0)
-                {
-                    error = TestRead(ref modbus, ref length, ref testData);
-                }
-                Console.WriteLine("Closing...");
-                error = modbus.ModbusTcpClose();
-                if (error == 0)
-                {
-                    Console.WriteLine("Close success!");
-                }
-                else
-                {
-                    Console.WriteLine("Close fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
-                }
+                modbus.ModbusTcpOpen();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Open fail. Error is " + e.Message + ".");
+                return;
+            }
 
-            }
-            else
+            Console.WriteLine("Open success!");
+
+            TestWrite(ref modbus, ref testData);
+            TestRead(ref modbus, ref length, ref testData);
+
+            Console.WriteLine("Closing...");
+            try
             {
-                Console.WriteLine("Open fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
+                modbus.ModbusTcpClose();
             }
+            catch (Exception e)
+            {
+                Console.WriteLine("Close fail. Error is " + e.Message + ".");
+                return;
+            }
+
+            Console.WriteLine("Close success!");
 
             Console.Read();
         }
 
-        private static int TestWrite(ref ModbusTcpProtocol modbus, ref List<ushort> data)
+        private static void TestWrite(ref ModbusTcpProtocol modbus, ref List<ushort> data)
         {
             Console.WriteLine("Test write...");
             Console.Write("Write data is:");
@@ -67,49 +67,57 @@ namespace ConsoleComm
             Console.WriteLine();
 
             int error = 0;
-            error = modbus.WriteRegiset(1, 0x000, ref data);
-            if (error == 0)
+            try
             {
-                Console.WriteLine("Write success!");
+                error = modbus.WriteRegiset(1, 0x000, ref data);
+                if (error != 0)
+                {
+                    Console.WriteLine("Write fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
+                }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("Write fail. Error code is " + error.ToString() + ".");
+                Console.WriteLine("Write fail. Error is " + e.Message + ".");
             }
 
-            return error;
+            Console.WriteLine("Write success!");
         }
 
-        private static int TestRead(ref ModbusTcpProtocol modbus, ref int length, ref List<ushort> data)
+        private static void TestRead(ref ModbusTcpProtocol modbus, ref int length, ref List<ushort> data)
         {
             Console.WriteLine("Test read...");
             int error = 0;
             List<ushort> readData = new List<ushort>();
-            error = modbus.ReadRegister(1, 0x0000, (ushort)length, ref readData);
-            if (error == 0)
+            try
             {
-                Console.Write("Read data is:");
-                foreach (var i in readData)
+                error = modbus.ReadRegister(1, 0x0000, (ushort)length, out readData);
+                if (error == 0)
                 {
-                    Console.Write(" " + i.ToString());
-                }
-                Console.WriteLine();
-                Console.WriteLine("Read success!");
-                if (data.SequenceEqual(readData))
-                {
-                    Console.WriteLine("Read data is same as send!");
+                    Console.Write("Read data is:");
+                    foreach (var i in readData)
+                    {
+                        Console.Write(" " + i.ToString());
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine("Read success!");
+                    if (data.SequenceEqual(readData))
+                    {
+                        Console.WriteLine("Read data is same as send!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Read data is NOT same as send!");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine("Read data is NOT same as send!");
+                    Console.WriteLine("Read fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
                 }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("Read fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
+                Console.WriteLine("Read fail. Error is " + e.Message + ".");
             }
-
-            return error;
         }
     }
 }

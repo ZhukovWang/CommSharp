@@ -12,33 +12,24 @@ namespace Comm
 
         private BaseSocket _baseSocket;
 
-        public int TransportSocketOpen()
+        public void TransportSocketOpen()
         {
-            int error = _baseSocket.Init();
+            _baseSocket.Init();
 
-            if (error == 0)
-            {
-                error = _baseSocket.Open();
-            }
-
-            return error;
+            _baseSocket.Open();
         }
 
-        public int TransportSocketData(ref List<Byte> sendData, ref List<Byte> receiveData)
+        public int TransportSocketData(ref List<Byte> sendData, out List<Byte> receiveData)
         {
-            int error = _baseSocket.Send(ref sendData);
-            if (error == 0)
-            {
-                error = _baseSocket.Receive(ref receiveData);
-            }
-
-            return error;
+            receiveData = new List<byte>();
+            _baseSocket.Send(ref sendData);
+            int length = _baseSocket.Receive(out receiveData);
+            return length;
         }
 
-        public int TransportSockClose()
+        public void TransportSockClose()
         {
-            int error = _baseSocket.Close();
-            return error;
+            _baseSocket.Close();
         }
     }
 }

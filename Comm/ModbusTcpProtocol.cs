@@ -16,19 +16,19 @@ namespace Comm
         private TransportSocket _transportSocket;
         private ushort _identifier = 0;
 
-        public int ModbusTcpOpen()
+        public void ModbusTcpOpen()
         {
-            return _transportSocket.TransportSocketOpen();
+            _transportSocket.TransportSocketOpen();
         }
 
-        public int ModbusTcpClose()
+        public void ModbusTcpClose()
         {
-            return _transportSocket.TransportSockClose();
+            _transportSocket.TransportSockClose();
         }
 
-        public int ReadRegister(byte id, ushort beginAddress, ushort number, ref List<ushort> data)
+        public int ReadRegister(byte id, ushort beginAddress, ushort number, out List<ushort> data)
         {
-            int error = 0;
+            data = new List<ushort>();
 
             List<byte> sendData = new List<byte>();
             List<byte> receiveData = new List<byte>();
@@ -63,9 +63,9 @@ namespace Comm
             sendData.Add(numberBytes[1]);
             sendData.Add(numberBytes[0]);
 
-            error = _transportSocket.TransportSocketData(ref sendData, ref receiveData);
+            int receiveLength = _transportSocket.TransportSocketData(ref sendData, out receiveData);
 
-            if (error == 0)
+            if (receiveLength > 0)
             {
                 if (receiveData[7] == 3)
                 {
@@ -77,24 +77,18 @@ namespace Comm
                             data.Add(BitConverter.ToUInt16(dataTwoBytes,0));
                         }
                     }
-                    else
-                    {
-                        return 0x10;
-                    }
                 }
                 else
                 {
-                    return receiveData[8] | 0x10;
+                    return (receiveData[7] << 8) | receiveData[8];
                 }
             }
 
-            return error;
+            return 0;
         }
 
         public int WriteRegiset(byte id, ushort beginAddress, ref List<ushort> data)
         {
-            int error = 0;
-
             List<byte> sendData = new List<byte>();
             List<byte> receiveData = new List<byte>();
 
@@ -142,9 +136,9 @@ namespace Comm
             sendData[4] = lengthBytes[1];
             sendData[5] = lengthBytes[0];
 
-            error = _transportSocket.TransportSocketData(ref sendData, ref receiveData);
+            int receiveLength = _transportSocket.TransportSocketData(ref sendData, out receiveData);
 
-            if (error == 0)
+            if (length > 0)
             {
                 if (receiveData[7] == 0x10)
                 {
@@ -154,18 +148,14 @@ namespace Comm
                     {
                         ;
                     }
-                    else
-                    {
-                        return 0x10;
-                    }
                 }
                 else
                 {
-                    return receiveData[8] | 0x10;
+                    return (receiveData[7] << 8) | receiveData[8];
                 }
             }
 
-            return error;
+            return 0;
         }
     }
 }
