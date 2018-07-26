@@ -1,13 +1,18 @@
-﻿using Comm;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Comm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace ConsoleComm
+namespace Comm.Tests
 {
-    internal class Program
+    [TestClass()]
+    public class ModbusTcpProtocolTests
     {
-        private static void Main(string[] args)
+        [TestMethod()]
+        public void RegisterTest()
         {
             string localIp = "192.168.1.222";
             int localPort = 0;
@@ -53,10 +58,10 @@ namespace ConsoleComm
 
             Console.WriteLine("Close success!");
 
-            Console.Read();
+            Assert.IsTrue(true);
         }
 
-        private static void TestWrite(ref ModbusTcpProtocol modbus, ref List<ushort> data)
+        private void TestWrite(ref ModbusTcpProtocol modbus, ref List<ushort> data)
         {
             Console.WriteLine("Test write...");
             Console.Write("Write data is:");
@@ -83,7 +88,7 @@ namespace ConsoleComm
             Console.WriteLine("Write success!");
         }
 
-        private static void TestRead(ref ModbusTcpProtocol modbus, ref int length, ref List<ushort> data)
+        private void TestRead(ref ModbusTcpProtocol modbus, ref int length, ref List<ushort> data)
         {
             Console.WriteLine("Test read...");
             int error = 0;
