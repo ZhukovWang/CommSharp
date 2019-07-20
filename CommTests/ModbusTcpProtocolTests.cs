@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Comm.Protocol;
 
 namespace Comm.Tests
 {
@@ -27,7 +28,7 @@ namespace Comm.Tests
                 testData.Add((ushort)(0xFFF0 | i));
             }
 
-            Comm.ModbusTcpProtocol modbus = new ModbusTcpProtocol(remoteIp, remotePort, localIp, localPort);
+            ModbusTcpProtocol modbus = new ModbusTcpProtocol(remoteIp, remotePort, localIp, localPort);
 
             Console.WriteLine("Opening...");
             try
@@ -74,7 +75,7 @@ namespace Comm.Tests
             int error = 0;
             try
             {
-                error = modbus.WriteRegiset(1, 0x000, ref data);
+                error = modbus.WriteRegister(1, 0x000, ref data);
                 if (error != 0)
                 {
                     Console.WriteLine("Write fail. Error code is 0x" + Convert.ToString(error, 16).ToUpper() + ".");
