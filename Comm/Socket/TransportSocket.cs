@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Comm.Socket
 {
-    internal class TransportTcpSocket
+    public class TransportTcpSocket
     {
         public TransportTcpSocket(string remoteIp, int remotePort, string localIp, int localPort)
         {

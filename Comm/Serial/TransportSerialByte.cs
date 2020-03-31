@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Comm.Serial
 {
-    class TransportSerialByte
+    public class TransportSerialByte
     {
         public TransportSerialByte(string portName, int baudRate, int dataBits, Parity parity, StopBits stopBits)
         {
@@ -37,6 +37,5 @@ namespace Comm.Serial
         {
             _baseSerial.Close();
         }
-
     }
 }

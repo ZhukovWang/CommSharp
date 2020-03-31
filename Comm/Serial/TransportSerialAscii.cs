@@ -2,7 +2,7 @@ using System.IO.Ports;
 
 namespace Comm.Serial
 {
-    internal class TransportSerialAscii
+    public class TransportSerialAscii
     {
         public TransportSerialAscii(string portName, int baudRate, int dataBits, Parity parity, StopBits stopBits)
         {
