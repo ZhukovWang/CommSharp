@@ -1,7 +1,7 @@
 # CommSharp
 
-Just Comm with socket.
+Use socket or serial to communicate. Can make modbus-like protocol and build a modbus master in pc.
 
-Make for modbus-like Protocol.
+Use .Net Framework to build.
 
-Enjoy.
+MIT.
